@@ -21,11 +21,20 @@ import (
 
 // GetTag returns the value and arg about the tag from the struct field.
 func GetTag(sf reflect.StructField, tag string) (value, arg string) {
+	value, arg, _ = LookupTag(sf, tag)
+	return
+}
+
+// LookupTag returns the value and arg about the tag from the struct field.
+func LookupTag(sf reflect.StructField, tag string) (value, arg string, ok bool) {
 	if tag == "" {
-		panic("GetTag: tag must not be empty")
+		panic("LookupTag: tag must not be empty")
 	}
 
-	value = sf.Tag.Get(tag)
+	if value, ok = sf.Tag.Lookup(tag); !ok {
+		return
+	}
+
 	if index := strings.IndexByte(value, ','); index > -1 {
 		arg = strings.TrimSpace(value[index+1:])
 		value = strings.TrimSpace(value[:index])
