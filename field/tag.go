@@ -20,11 +20,9 @@ import (
 )
 
 // GetTag returns the value and arg about the tag from the struct field.
-//
-// If the tag value is equal to "-", return ("", "").
 func GetTag(sf reflect.StructField, tag string) (value, arg string) {
 	if tag == "" {
-		return
+		panic("GetTag: tag must not be empty")
 	}
 
 	value = sf.Tag.Get(tag)
