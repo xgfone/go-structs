@@ -78,7 +78,7 @@ func ExampleNewDefaultHandler() {
 
 	i := 123
 	s := S{String3: "aaa", Structs: make([]Struct, 2), IntPtr: &i}
-	err := structs.Reflect(nil, &s) // NewSetDefaultHandler is registered into DefaultReflector.
+	err := structs.Reflect(&s) // NewSetDefaultHandler is registered into DefaultReflector.
 	if err != nil {
 		fmt.Println(err)
 		return

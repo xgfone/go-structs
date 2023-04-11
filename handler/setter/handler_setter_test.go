@@ -49,7 +49,7 @@ func ExampleNewSetterHandler() {
 		Int _Int `setint:"123"`
 	}
 
-	if err := structs.Reflect(nil, &t); err != nil {
+	if err := structs.Reflect(&t); err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Printf("Int: %v\n", t.Int)

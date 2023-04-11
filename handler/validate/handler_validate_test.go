@@ -63,8 +63,8 @@ func ExampleNewValidatorHandler() {
 	}
 
 	var v S
-	fmt.Println(structs.Reflect(nil, v))  // Only returns the first error
-	fmt.Println(structs.Reflect(nil, &v)) // Only returns the first error
+	fmt.Println(structs.Reflect(v))  // Only returns the first error
+	fmt.Println(structs.Reflect(&v)) // Only returns the first error
 
 	v.F1 = 123
 	v.F2 = new(int64)
@@ -76,8 +76,8 @@ func ExampleNewValidatorHandler() {
 		{F4: 1},
 		{F4: 2},
 	}
-	fmt.Println(structs.Reflect(nil, v))
-	fmt.Println(structs.Reflect(nil, &v))
+	fmt.Println(structs.Reflect(v))
+	fmt.Println(structs.Reflect(&v))
 
 	// Output:
 	// F1: the integer 0 is less than 100

@@ -83,7 +83,7 @@ func ExampleReflector() {
 		PageSize int64 `default:"10" min:"10" max:"100"`
 	}
 	request := Request{Page: 2}
-	if err := sf.Reflect(nil, &request); err != nil {
+	if err := sf.Reflect(&request); err != nil {
 		fmt.Printf("reflect failed: %v\n", err)
 	} else {
 		fmt.Printf("Request.Page: %d\n", request.Page)
@@ -104,7 +104,7 @@ func ExampleReflector() {
 	response := Response{Persons: []Person{
 		{Username: "谢谢", Password: "123456789"},
 	}}
-	if err := sf.Reflect(nil, &response); err != nil {
+	if err := sf.Reflect(&response); err != nil {
 		fmt.Printf("reflect failed: %v\n", err)
 	} else {
 		fmt.Printf("Response.Username: %s\n", response.Persons[0].Username)

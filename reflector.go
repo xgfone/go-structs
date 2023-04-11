@@ -60,14 +60,24 @@ func Unregister(name string) {
 	DefaultReflector.Unregister(name)
 }
 
-// Reflect is equal to DefaultReflector.Reflect(ctx, structValuePtr).
-func Reflect(ctx, structValuePtr interface{}) error {
-	return DefaultReflector.Reflect(ctx, structValuePtr)
+// Reflect is equal to ReflectContext(nil, structValuePtr).
+func Reflect(structValuePtr interface{}) error {
+	return DefaultReflector.ReflectContext(nil, structValuePtr)
 }
 
-// ReflectValue is equal to DefaultReflector.ReflectValue(ctx, structValue).
-func ReflectValue(ctx interface{}, structValue reflect.Value) error {
-	return DefaultReflector.ReflectValue(ctx, structValue)
+// ReflectValue is equal to ReflectValueContext(nil, structValue).
+func ReflectValue(structValue reflect.Value) error {
+	return DefaultReflector.ReflectValueContext(nil, structValue)
+}
+
+// ReflectContext is equal to DefaultReflector.ReflectContext(ctx, structValuePtr).
+func ReflectContext(ctx, structValuePtr interface{}) error {
+	return DefaultReflector.ReflectContext(ctx, structValuePtr)
+}
+
+// ReflectValueContext is equal to DefaultReflector.ReflectValueContext(ctx, structValue).
+func ReflectValueContext(ctx interface{}, structValue reflect.Value) error {
+	return DefaultReflector.ReflectValueContext(ctx, structValue)
 }
 
 type tagKey struct {
@@ -123,21 +133,31 @@ func (r *Reflector) Unregister(name string) {
 	delete(r.handlers, name)
 }
 
-// Reflect reflects all the fields of the struct.
+// Reflect is equal to ReflectContext(nil, structValuePtr).
+func (r *Reflector) Reflect(structValuePtr interface{}) error {
+	return r.ReflectContext(nil, structValuePtr)
+}
+
+// ReflectValue is equal to ReflectValueContext(nil, value).
+func (r *Reflector) ReflectValue(value reflect.Value) error {
+	return r.ReflectValueContext(nil, value)
+}
+
+// ReflectContext reflects all the fields of the struct.
 //
 // If the field is a struct or slice/array of structs,
 // and has a tag named "reflect" with the value "-",
 // it stops to reflect the struct field recursively.
-func (r *Reflector) Reflect(ctx, structValuePtr interface{}) error {
+func (r *Reflector) ReflectContext(ctx, structValuePtr interface{}) error {
 	if structValuePtr == nil {
 		return nil
 	}
-	return r.ReflectValue(ctx, reflect.ValueOf(structValuePtr))
+	return r.ReflectValueContext(ctx, reflect.ValueOf(structValuePtr))
 }
 
-// ReflectValue is the same as Reflect, but uses reflect.Value
-// instead of a pointer to a struct.
-func (r *Reflector) ReflectValue(ctx interface{}, value reflect.Value) error {
+// ReflectValueContext is the same as ReflectContext,
+// but uses reflect.Value instead of a pointer to a struct.
+func (r *Reflector) ReflectValueContext(ctx interface{}, value reflect.Value) error {
 	switch kind := value.Kind(); kind {
 	case reflect.Struct:
 	case reflect.Pointer:

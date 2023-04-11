@@ -28,7 +28,7 @@ func BenchmarkReflector_Field0(b *testing.B) {
 	b.RunParallel(func(p *testing.PB) {
 		for p.Next() {
 			var s S
-			sf.Reflect(nil, &s)
+			sf.Reflect(&s)
 		}
 	})
 }
@@ -44,7 +44,7 @@ func BenchmarkReflector_Field1(b *testing.B) {
 	b.RunParallel(func(p *testing.PB) {
 		for p.Next() {
 			var s S
-			sf.Reflect(nil, &s)
+			sf.Reflect(&s)
 		}
 	})
 }
@@ -61,7 +61,7 @@ func BenchmarkReflector_Field2(b *testing.B) {
 	b.RunParallel(func(p *testing.PB) {
 		for p.Next() {
 			var s S
-			sf.Reflect(nil, &s)
+			sf.Reflect(&s)
 		}
 	})
 }
