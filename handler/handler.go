@@ -45,8 +45,8 @@ func (f Runner) Run(ctx interface{}, r, v reflect.Value, t reflect.StructField, 
 	return f(ctx, r, v, t, arg)
 }
 
-// NewHandler returns a new Handler from the parse and run functions.
-func NewHandler(parse Parser, run Runner) Handler {
+// New returns a new Handler from the parse and run functions.
+func New(parse Parser, run Runner) Handler {
 	return handler{parse: parse, run: run}
 }
 

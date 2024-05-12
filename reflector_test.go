@@ -42,8 +42,8 @@ func ExampleReflector() {
 	}
 
 	sf := NewReflector()
-	sf.Register("min", handler.NewHandler(parseInt, compareInt(true)))
-	sf.Register("max", handler.NewHandler(parseInt, compareInt(false)))
+	sf.Register("min", handler.New(parseInt, compareInt(true)))
+	sf.Register("max", handler.New(parseInt, compareInt(false)))
 	sf.RegisterSimpleFunc("default", func(v reflect.Value, s interface{}) error {
 		if !v.IsZero() {
 			return nil
