@@ -18,14 +18,22 @@ package setdefault
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/xgfone/go-cast"
 	"github.com/xgfone/go-defaults"
 	"github.com/xgfone/go-structs/field"
 	"github.com/xgfone/go-structs/handler"
 	"github.com/xgfone/go-structs/handler/setter"
+)
+
+var (
+	// ParseTime is used to parse a string to time.Time.
+	ParseTime func(string) (time.Time, error) = parseTime
+
+	// ParseDuration is used to parse a string to time.Duration.
+	ParseDuration func(string) (time.Duration, error) = parseDuration
 )
 
 // SetDefaultRunnder returns a runner to set the default value
@@ -111,14 +119,14 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 		v.SetString(s)
 
 	case reflect.Bool:
-		i, err := cast.ToBool(s)
+		i, err := strconv.ParseBool(s)
 		if err != nil {
 			return err
 		}
 		v.SetBool(i)
 
 	case reflect.Float32, reflect.Float64:
-		i, err := cast.ToFloat64(s)
+		i, err := strconv.ParseFloat(s, 64)
 		if err != nil {
 			return err
 		}
@@ -126,7 +134,7 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 
 	case reflect.Int64:
 		if _, ok := v.Interface().(time.Duration); ok {
-			i, err := cast.ToDuration(s)
+			i, err := ParseDuration(s)
 			if err == nil {
 				v.SetInt(int64(i))
 			}
@@ -137,20 +145,20 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 		var i int64
 		if strings.HasPrefix(s, "now(") && strings.HasSuffix(s, ")") {
 			i = defaults.Now().Unix()
-		} else if i, e = cast.ToInt64(s); e != nil {
+		} else if i, e = strconv.ParseInt(s, 10, 64); e != nil {
 			return e
 		}
 		v.SetInt(i)
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
-		i, err := cast.ToInt64(s)
+		i, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {
 			return err
 		}
 		v.SetInt(i)
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		i, err := cast.ToUint64(s)
+		i, err := strconv.ParseUint(s, 10, 64)
 		if err != nil {
 			return err
 		}
@@ -160,7 +168,8 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 		if _, ok := v.Interface().(time.Time); !ok {
 			return fmt.Errorf("%s: unsupported type %T", sf.Name, v.Interface())
 		}
-		i, err := cast.ToTime(s)
+
+		i, err := ParseTime(s)
 		if err != nil {
 			return err
 		}
@@ -171,4 +180,66 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 	}
 
 	return nil
+}
+
+func parseDuration(src string) (dst time.Duration, err error) {
+	_len := len(src)
+	if _len == 0 {
+		return
+	}
+
+	switch src[_len-1] {
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		var i int64
+		i, err = strconv.ParseInt(src, 10, 64)
+		dst = time.Duration(i) * time.Millisecond
+	default:
+		dst, err = time.ParseDuration(src)
+	}
+
+	return
+}
+
+func parseTime(value string) (time.Time, error) {
+	loc := defaults.TimeLocation.Get()
+
+	switch value {
+	case "", "0000-00-00 00:00:00", "0000-00-00 00:00:00.000", "0000-00-00 00:00:00.000000":
+		return time.Time{}.In(loc), nil
+	}
+
+	if isIntegerString(value) {
+		i, err := strconv.ParseInt(value, 10, 64)
+		return time.Unix(i, 0).In(loc), err
+	}
+
+	for _, layout := range defaults.TimeFormats.Get() {
+		if t, err := time.ParseInLocation(layout, value, loc); err == nil {
+			return t, nil
+		}
+	}
+
+	return time.Time{}, fmt.Errorf("unable to parse time '%s'", value)
+}
+
+func isIntegerString(s string) bool {
+	_len := len(s)
+	if _len == 0 {
+		return false
+	}
+
+	switch s[0] {
+	case '-', '+':
+		s = s[1:]
+		_len--
+	}
+
+	for i := 0; i < _len; i++ {
+		switch s[i] {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		default:
+			return false
+		}
+	}
+	return true
 }
