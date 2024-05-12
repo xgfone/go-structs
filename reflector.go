@@ -35,14 +35,9 @@ func Register(name string, handler handler.Handler) {
 	DefaultReflector.Register(name, handler)
 }
 
-// RegisterFunc is equal to DefaultReflector.RegisterFunc(name, handler).
-func RegisterFunc(name string, handler handler.Runner) {
-	DefaultReflector.RegisterFunc(name, handler)
-}
-
-// RegisterSimpleFunc is equal to DefaultReflector.RegisterSimpleFunc(name, handler).
-func RegisterSimpleFunc(name string, handler func(reflect.Value, any) error) {
-	DefaultReflector.RegisterSimpleFunc(name, handler)
+// RegisterRunner is equal to Register(name, handler).
+func RegisterRunner(name string, handler handler.Runner) {
+	DefaultReflector.Register(name, handler)
 }
 
 // Unregister is equal to DefaultReflector.Unregister(name).
@@ -103,19 +98,6 @@ func NewReflector() *Reflector {
 // Register registers the field handler with the tag name.
 func (r *Reflector) Register(name string, handler handler.Handler) {
 	r.handlers[name] = handler
-}
-
-// RegisterFunc is equal to r.Register(name, handler).
-func (r *Reflector) RegisterFunc(name string, handler handler.Runner) {
-	r.Register(name, handler)
-}
-
-// RegisterSimpleFunc is the simplified RegisterFunc,
-// which only cares about the field value and the tag value.
-func (r *Reflector) RegisterSimpleFunc(name string, handler func(reflect.Value, any) error) {
-	r.RegisterFunc(name, func(_ any, _, v reflect.Value, _ reflect.StructField, a any) error {
-		return handler(v, a)
-	})
 }
 
 // Unregister unregisters the field handler by the tag name.

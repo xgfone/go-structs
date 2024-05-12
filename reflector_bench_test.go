@@ -17,11 +17,13 @@ package structs
 import (
 	"reflect"
 	"testing"
+
+	"github.com/xgfone/go-structs/handler"
 )
 
 func BenchmarkReflector_Field0(b *testing.B) {
 	sf := NewReflector()
-	sf.RegisterSimpleFunc("noop", func(reflect.Value, interface{}) error { return nil })
+	sf.Register("noop", handler.SimpleRunner(func(reflect.Value, interface{}) error { return nil }))
 	type S struct{}
 
 	b.ResetTimer()
@@ -35,7 +37,7 @@ func BenchmarkReflector_Field0(b *testing.B) {
 
 func BenchmarkReflector_Field1(b *testing.B) {
 	sf := NewReflector()
-	sf.RegisterSimpleFunc("noop", func(reflect.Value, interface{}) error { return nil })
+	sf.Register("noop", handler.SimpleRunner(func(reflect.Value, interface{}) error { return nil }))
 	type S struct {
 		F1 int `noop:"noop"`
 	}
@@ -51,7 +53,7 @@ func BenchmarkReflector_Field1(b *testing.B) {
 
 func BenchmarkReflector_Field2(b *testing.B) {
 	sf := NewReflector()
-	sf.RegisterSimpleFunc("noop", func(reflect.Value, interface{}) error { return nil })
+	sf.Register("noop", handler.SimpleRunner(func(reflect.Value, interface{}) error { return nil }))
 	type S struct {
 		F1 int    `noop:"noop"`
 		F2 string `noop:"noop"`

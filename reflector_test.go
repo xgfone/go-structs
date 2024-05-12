@@ -44,7 +44,7 @@ func ExampleReflector() {
 	sf := NewReflector()
 	sf.Register("min", handler.New(parseInt, compareInt(true)))
 	sf.Register("max", handler.New(parseInt, compareInt(false)))
-	sf.RegisterSimpleFunc("default", func(v reflect.Value, s interface{}) error {
+	sf.Register("default", handler.SimpleRunner(func(v reflect.Value, s interface{}) error {
 		if !v.IsZero() {
 			return nil
 		}
@@ -56,8 +56,8 @@ func ExampleReflector() {
 
 		v.SetInt(i)
 		return nil
-	})
-	sf.RegisterSimpleFunc("datamask", func(v reflect.Value, s interface{}) error {
+	}))
+	sf.Register("datamask", handler.SimpleRunner(func(v reflect.Value, s interface{}) error {
 		switch s.(string) {
 		case "username":
 			name := v.Interface().(string)
@@ -75,7 +75,7 @@ func ExampleReflector() {
 		}
 
 		return nil
-	})
+	}))
 
 	/// Example 1: Check and validate the request arguments
 	type Request struct {
