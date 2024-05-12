@@ -25,17 +25,7 @@ import (
 	"sync/atomic"
 
 	"github.com/xgfone/go-structs/handler"
-	"github.com/xgfone/go-structs/handler/setdefault"
-	"github.com/xgfone/go-structs/handler/setter"
-	"github.com/xgfone/go-structs/handler/validate"
 )
-
-func init() {
-	Register("validate", validate.NewValidatorHandler(nil))
-	Register("default", setdefault.NewDefaultHandler())
-	Register("setfmt", setter.NewSetFormatHandler())
-	Register("set", setter.NewSetterHandler(nil, nil))
-}
 
 // DefaultReflector is the default global struct field reflector.
 var DefaultReflector = NewReflector()
@@ -51,7 +41,7 @@ func RegisterFunc(name string, handler handler.Runner) {
 }
 
 // RegisterSimpleFunc is equal to DefaultReflector.RegisterSimpleFunc(name, handler).
-func RegisterSimpleFunc(name string, handler func(reflect.Value, interface{}) error) {
+func RegisterSimpleFunc(name string, handler func(reflect.Value, any) error) {
 	DefaultReflector.RegisterSimpleFunc(name, handler)
 }
 
@@ -61,7 +51,7 @@ func Unregister(name string) {
 }
 
 // Reflect is equal to ReflectContext(nil, structValuePtr).
-func Reflect(structValuePtr interface{}) error {
+func Reflect(structValuePtr any) error {
 	return DefaultReflector.ReflectContext(nil, structValuePtr)
 }
 
@@ -71,12 +61,12 @@ func ReflectValue(structValue reflect.Value) error {
 }
 
 // ReflectContext is equal to DefaultReflector.ReflectContext(ctx, structValuePtr).
-func ReflectContext(ctx, structValuePtr interface{}) error {
+func ReflectContext(ctx, structValuePtr any) error {
 	return DefaultReflector.ReflectContext(ctx, structValuePtr)
 }
 
 // ReflectValueContext is equal to DefaultReflector.ReflectValueContext(ctx, structValue).
-func ReflectValueContext(ctx interface{}, structValue reflect.Value) error {
+func ReflectValueContext(ctx any, structValue reflect.Value) error {
 	return DefaultReflector.ReflectValueContext(ctx, structValue)
 }
 
@@ -87,7 +77,7 @@ type tagKey struct {
 
 type tagValue struct {
 	Value string
-	Arg   interface{}
+	Arg   any
 }
 
 // Reflector is used to reflect the tags of the fields of the struct
@@ -122,8 +112,8 @@ func (r *Reflector) RegisterFunc(name string, handler handler.Runner) {
 
 // RegisterSimpleFunc is the simplified RegisterFunc,
 // which only cares about the field value and the tag value.
-func (r *Reflector) RegisterSimpleFunc(name string, handler func(reflect.Value, interface{}) error) {
-	r.RegisterFunc(name, func(_ interface{}, _, v reflect.Value, _ reflect.StructField, a interface{}) error {
+func (r *Reflector) RegisterSimpleFunc(name string, handler func(reflect.Value, any) error) {
+	r.RegisterFunc(name, func(_ any, _, v reflect.Value, _ reflect.StructField, a any) error {
 		return handler(v, a)
 	})
 }
@@ -134,7 +124,7 @@ func (r *Reflector) Unregister(name string) {
 }
 
 // Reflect is equal to ReflectContext(nil, structValuePtr).
-func (r *Reflector) Reflect(structValuePtr interface{}) error {
+func (r *Reflector) Reflect(structValuePtr any) error {
 	return r.ReflectContext(nil, structValuePtr)
 }
 
@@ -148,7 +138,7 @@ func (r *Reflector) ReflectValue(value reflect.Value) error {
 // If the field is a struct or slice/array of structs,
 // and has a tag named "reflect" with the value "-",
 // it stops to reflect the struct field recursively.
-func (r *Reflector) ReflectContext(ctx, structValuePtr interface{}) error {
+func (r *Reflector) ReflectContext(ctx, structValuePtr any) error {
 	if structValuePtr == nil {
 		return nil
 	}
@@ -157,7 +147,7 @@ func (r *Reflector) ReflectContext(ctx, structValuePtr interface{}) error {
 
 // ReflectValueContext is the same as ReflectContext,
 // but uses reflect.Value instead of a pointer to a struct.
-func (r *Reflector) ReflectValueContext(ctx interface{}, value reflect.Value) error {
+func (r *Reflector) ReflectValueContext(ctx any, value reflect.Value) error {
 	switch kind := value.Kind(); kind {
 	case reflect.Struct:
 	case reflect.Pointer:
@@ -177,7 +167,7 @@ func (r *Reflector) ReflectValueContext(ctx interface{}, value reflect.Value) er
 	return r.reflectStruct(ctx, value, value)
 }
 
-func (r *Reflector) reflectStruct(ctx interface{}, root, v reflect.Value) (err error) {
+func (r *Reflector) reflectStruct(ctx any, root, v reflect.Value) (err error) {
 	t := v.Type()
 	for i, _len := 0, v.NumField(); i < _len; i++ {
 		if err = r.reflectField(ctx, root, v.Field(i), t.Field(i)); err != nil {
@@ -187,7 +177,7 @@ func (r *Reflector) reflectStruct(ctx interface{}, root, v reflect.Value) (err e
 	return
 }
 
-func (r *Reflector) reflectField(ctx interface{}, root, v reflect.Value, t reflect.StructField) (err error) {
+func (r *Reflector) reflectField(ctx any, root, v reflect.Value, t reflect.StructField) (err error) {
 	if !t.IsExported() {
 		return
 	}
@@ -269,7 +259,7 @@ func unquote(s string) string {
 	return s
 }
 
-func (r *Reflector) do(ctx interface{}, root, v reflect.Value, t reflect.StructField, name, value string, stop *bool) (err error) {
+func (r *Reflector) do(ctx any, root, v reflect.Value, t reflect.StructField, name, value string, stop *bool) (err error) {
 	if name == "reflect" && (value == `"-"` || unquote(value) == "-") {
 		*stop = true
 		return
@@ -283,7 +273,7 @@ func (r *Reflector) do(ctx interface{}, root, v reflect.Value, t reflect.StructF
 }
 
 // copy and modify from https://github.com/golang/go/blob/go1.18.4/src/reflect/type.go
-func (r *Reflector) walkTag(ctx interface{}, root, v reflect.Value, t reflect.StructField, tag string) (stop bool, err error) {
+func (r *Reflector) walkTag(ctx any, root, v reflect.Value, t reflect.StructField, tag string) (stop bool, err error) {
 	for tag != "" {
 		// Skip leading space.
 		i := 0
