@@ -36,6 +36,13 @@ func SimpleRunner(f func(field reflect.Value, arg interface{}) error) Runner {
 	}
 }
 
+// FieldRunner converts a field value function to Runner.
+func FieldRunner(f func(reflect.Value, reflect.StructField, any) error) Runner {
+	return func(_ interface{}, _, vf reflect.Value, sf reflect.StructField, arg interface{}) error {
+		return f(vf, sf, arg)
+	}
+}
+
 // Parse implements the interface Handler, which does nothing
 // and returns the original string input as the parsed result.
 func (f Runner) Parse(s string) (interface{}, error) { return s, nil }
