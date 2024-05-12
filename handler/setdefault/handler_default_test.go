@@ -20,16 +20,21 @@ import (
 
 	"github.com/xgfone/go-defaults"
 	"github.com/xgfone/go-structs"
+	"github.com/xgfone/go-structs/handler/setdefault"
 )
 
 type defaultSetter string
 
-func (d *defaultSetter) SetDefault(src interface{}) error {
+func (d *defaultSetter) SetDefault(src any) error {
 	*d = defaultSetter(src.(string))
 	return nil
 }
 
-func ExampleNewDefaultHandler() {
+func init() {
+	structs.Register("default", setdefault.SetDefaultRunner())
+}
+
+func ExampleSetDefaultRunner() {
 	// For test
 	oldNow := defaults.TimeNowFunc.Get()
 	defaults.TimeNowFunc.Set(func() time.Time { return time.Unix(1660140928, 0).UTC() })
@@ -78,7 +83,7 @@ func ExampleNewDefaultHandler() {
 
 	i := 123
 	s := S{String3: "aaa", Structs: make([]Struct, 2), IntPtr: &i}
-	err := structs.Reflect(&s) // NewSetDefaultHandler is registered into DefaultReflector.
+	err := structs.Reflect(&s)
 	if err != nil {
 		fmt.Println(err)
 		return

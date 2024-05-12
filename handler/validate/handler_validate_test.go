@@ -25,7 +25,7 @@ import (
 	"github.com/xgfone/go-structs/handler/validate"
 )
 
-func ExampleNewValidatorHandler() {
+func ExampleValidateStructFieldRunner() {
 	validator := func(value interface{}, rule string) error {
 		value = reflect.Indirect(reflect.ValueOf(value)).Interface()
 		switch {
@@ -51,7 +51,7 @@ func ExampleNewValidatorHandler() {
 
 		return nil
 	}
-	structs.Register("validate", validate.NewValidatorHandler(assists.RuleValidateFunc(validator)))
+	structs.Register("validate", validate.ValidateStructFieldRunner(assists.RuleValidateFunc(validator)))
 
 	type S struct {
 		F1 int64  `validate:"min(100)"` // General Type

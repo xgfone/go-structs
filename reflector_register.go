@@ -21,8 +21,8 @@ import (
 )
 
 func init() {
-	Register("validate", validate.NewValidatorHandler(nil))
-	Register("default", setdefault.NewDefaultHandler())
-	Register("setfmt", setter.NewSetFormatHandler())
-	Register("set", setter.NewSetterHandler(nil, nil))
+	Register("validate", validate.ValidateStructFieldRunner(nil))
+	Register("default", setdefault.SetDefaultRunner())
+	Register("setfmt", setter.SetFormatRunner())
+	Register("set", setter.SetterRunner(nil))
 }

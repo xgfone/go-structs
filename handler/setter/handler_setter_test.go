@@ -24,25 +24,29 @@ import (
 
 type _Int int
 
-func (i *_Int) Set(v interface{}) error {
-	*i = _Int(v.(int))
-	return nil
+func (i *_Int) Set(v any) error {
+	_v, err := strconv.ParseInt(v.(string), 10, 64)
+	if err == nil {
+		*i = _Int(_v)
+	}
+	return err
 }
 
 type _Str string
 
-func (s *_Str) Set(v interface{}) error {
+func (s *_Str) Set(v any) error {
 	*s = _Str(v.(string))
 	return nil
 }
 
-func ExampleNewSetterHandler() {
+func (s *_Str) SetFormat(v any) error {
+	return s.Set(v)
+}
+
+func ExampleSetterRunner() {
 	// "set" is registered by default. Now, we register the customized
 	// "setint" to pre-parse the tag value to int.
-	structs.Register("setint", setter.NewSetterHandler(func(s string) (interface{}, error) {
-		i, err := strconv.ParseInt(s, 10, 64)
-		return int(i), err
-	}, nil))
+	structs.Register("setint", setter.SetterRunner(nil))
 
 	var t struct {
 		Str _Str `set:"abc"`
@@ -58,5 +62,20 @@ func ExampleNewSetterHandler() {
 
 	// Output:
 	// Int: 123
+	// Str: abc
+}
+
+func ExampleSetFormatRunner() {
+	var t struct {
+		Str _Str `set:"abc"`
+	}
+
+	if err := structs.Reflect(&t); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("Str: %v\n", t.Str)
+	}
+
+	// Output:
 	// Str: abc
 }

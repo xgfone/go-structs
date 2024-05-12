@@ -22,13 +22,13 @@ import (
 	"github.com/xgfone/go-structs/handler"
 )
 
-// NewSetFormatHandler is the same as NewSetterHandler,
-// but asserts the struct field to the interface { SetFormat(string) }
-// or { SetFormat(string) error }.
+// SetFormatRunner is the same as SetterRunner, but asserts the struct field
+// to one of the interfaces as follow:
 //
-// By default, it is registered into DefaultReflector with the tag name "setfmt".
-func NewSetFormatHandler() handler.Handler {
-	return NewSetterHandler(nil, handler.SimpleRunner(func(vf reflect.Value, arg interface{}) (err error) {
+//	interface { SetFormat(string) }
+//	interface { SetFormat(string) error }
+func SetFormatRunner() handler.Runner {
+	return SetterRunner(handler.SimpleRunner(func(vf reflect.Value, arg any) (err error) {
 		switch i := vf.Interface().(type) {
 		case interface{ SetFormat(string) }:
 			i.SetFormat(arg.(string))
@@ -41,47 +41,34 @@ func NewSetFormatHandler() handler.Handler {
 	}))
 }
 
-// NewSetterHandler returns a handler to set the struct field to something
-// by the set function, which is registered into DefaultReflector
-// with the tag name "set" and the nil parser and set function by default.
+// SetterRunner returns a runner to set the struct field to something
+// by the set function.
 //
-// If parser is nil, use the default, which returns the input directly.
 // If set is nil, use the default, which will assert the struct field
-// to the interface { Set(interface{}) error }.
-func NewSetterHandler(parser handler.Parser, set handler.Runner) handler.Handler {
-	if set == nil {
-		set = usesetter
+// to the interface { Set(any) error }.
+func SetterRunner(setter handler.Runner) handler.Runner {
+	if setter == nil {
+		setter = setbyiface
 	}
-	if parser == nil {
-		parser = notparser
+
+	return func(c any, r, vf reflect.Value, sf reflect.StructField, arg any) error {
+		if !vf.CanSet() {
+			return fmt.Errorf("the field '%s' cannnot be set", sf.Name)
+		}
+
+		ptr := vf
+		if vf.Kind() != reflect.Pointer {
+			ptr = vf.Addr()
+		} else if vf.IsNil() {
+			vf.Set(reflect.New(vf.Type().Elem()))
+		}
+
+		return setter(c, r, ptr, sf, arg)
 	}
-	return setHandler{parser: parser, setter: set}
 }
 
-type setHandler struct {
-	parser handler.Parser
-	setter handler.Runner
-}
-
-func (h setHandler) Parse(s string) (interface{}, error) { return h.parser(s) }
-func (h setHandler) Run(c interface{}, root, value reflect.Value, sf reflect.StructField, arg interface{}) error {
-	if !value.CanSet() {
-		return fmt.Errorf("the field '%s' cannnot be set", sf.Name)
-	}
-
-	ptr := value
-	if value.Kind() != reflect.Pointer {
-		ptr = value.Addr()
-	} else if value.IsNil() {
-		value.Set(reflect.New(value.Type().Elem()))
-	}
-
-	return h.setter(c, root, ptr, sf, arg)
-}
-
-func notparser(s string) (interface{}, error) { return s, nil }
-func usesetter(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructField, arg interface{}) error {
-	if setter, ok := fieldptr.Interface().(interface{ Set(interface{}) error }); ok {
+func setbyiface(_ any, _, fieldptr reflect.Value, sf reflect.StructField, arg any) error {
+	if setter, ok := fieldptr.Interface().(interface{ Set(any) error }); ok {
 		return setter.Set(arg)
 	}
 	panic(fmt.Errorf("%s(%T) has not implemented the interface setter.Setter", sf.Name, fieldptr.Interface()))

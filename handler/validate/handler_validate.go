@@ -24,34 +24,24 @@ import (
 	"github.com/xgfone/go-structs/handler"
 )
 
-// NewValidatorHandler returns a handler to validate whether the field value
-// is valid, which is registered into DefaultReflector
-// with the tag name "validate" by default.
-//
-// Because the reflector walks the sub-fields of the struct slice field
-// recursively, so the validation rule "array(structure)" should not be used.
+// ValidateStructFieldRunner returns a runner to validate
+// whether a struct field value is valid, which is registered
+// into DefaultReflector with the tag name "validate" by default.
 //
 // If ruleValidator is nil, use defaults.RuleValidator instead.
-func NewValidatorHandler(ruleValidator assists.RuleValidator) handler.Handler {
-	return validator{ruleValidator}
-}
+func ValidateStructFieldRunner(ruleValidator assists.RuleValidator) handler.Runner {
+	return handler.FieldRunner(func(v reflect.Value, sf reflect.StructField, a any) (err error) {
+		if ruleValidator == nil {
+			err = defaults.ValidateWithRule(v.Interface(), a.(string))
+		} else {
+			err = ruleValidator.Validate(v.Interface(), a.(string))
+		}
 
-type validator struct {
-	assists.RuleValidator
-}
-
-func (h validator) Parse(s string) (interface{}, error) { return s, nil }
-func (h validator) Run(c interface{}, r, v reflect.Value, t reflect.StructField, a interface{}) (err error) {
-	if h.RuleValidator == nil {
-		err = defaults.ValidateWithRule(v.Interface(), a.(string))
-	} else {
-		err = h.RuleValidator.Validate(v.Interface(), a.(string))
-	}
-
-	if err != nil {
-		err = fmt.Errorf("%s: %w", getStructFieldName(t), err)
-	}
-	return err
+		if err != nil {
+			err = fmt.Errorf("%s: %w", getStructFieldName(sf), err)
+		}
+		return
+	})
 }
 
 func getStructFieldName(sf reflect.StructField) (name string) {

@@ -28,7 +28,7 @@ import (
 	"github.com/xgfone/go-structs/handler/setter"
 )
 
-// NewDefaultHandler returns a handler to set the default value
+// SetDefaultRunnder returns a runner to set the default value
 // of the struct field if it is ZERO, which is registered into DefaultReflector
 // with the tag name "default" by default.
 //
@@ -67,8 +67,8 @@ import (
 // Notice: If the tag value starts with ".", it represents a field name and
 // the default value of current field is set to the value of that field.
 // But their types must be consistent, or panic.
-func NewDefaultHandler() handler.Handler {
-	return setter.NewSetterHandler(nil, setdefault)
+func SetDefaultRunner() handler.Runner {
+	return setter.SetterRunner(setdefault)
 }
 
 func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructField, arg interface{}) error {
