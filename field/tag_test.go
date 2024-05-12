@@ -22,17 +22,17 @@ import (
 func ExampleGetTag() {
 	type T struct {
 		Int   int
-		Int8  int8  `json:""`
-		Int16 int16 `json:"int16"`
-		Int32 int32 `json:",arg"`
-		Int64 int64 `json:"int64,arg"`
-		Bool  bool  `json:"-"`
+		Int8  int8  `key:""`
+		Int16 int16 `key:"int16"`
+		Int32 int32 `key:",arg"`
+		Int64 int64 `key:"int64,arg"`
+		Bool  bool  `key:"-"`
 	}
 
 	stype := reflect.TypeOf(T{})
 	for i := 0; i < stype.NumField(); i++ {
 		field := stype.Field(i)
-		value, arg := GetTag(field, "json")
+		value, arg := GetTag(field, "key")
 		fmt.Printf("fieldname=%s, tagvalue=%s, tagarg=%s\n", field.Name, value, arg)
 	}
 
