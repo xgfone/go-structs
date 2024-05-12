@@ -53,7 +53,12 @@ func (f Runner) Run(ctx interface{}, r, v reflect.Value, t reflect.StructField, 
 }
 
 // New returns a new Handler from the parse and run functions.
+//
+// parse may be nil, but run must not be nil.
 func New(parse Parser, run Runner) Handler {
+	if parse == nil {
+		parse = noopparse
+	}
 	return handler{parse: parse, run: run}
 }
 
@@ -62,6 +67,7 @@ type handler struct {
 	run   Runner
 }
 
+func noopparse(s string) (interface{}, error)         { return s, nil }
 func (h handler) Parse(s string) (interface{}, error) { return h.parse(s) }
 func (h handler) Run(c interface{}, r, v reflect.Value, t reflect.StructField, a interface{}) error {
 	return h.run(c, r, v, t, a)
