@@ -1,2 +1,4 @@
-github.com/xgfone/go-defaults v0.14.0 h1:FSx/7p8AgwVE9IHtvm0qz3QyUu6Pn0Ah81s8XOLVeVw=
-github.com/xgfone/go-defaults v0.14.0/go.mod h1:RjyN5TK6hyaROkw2nyfchvCSCOch8rJ/zPO9nO4Y+EQ=
+github.com/xgfone/go-defaults v0.20.0 h1:G6ZrkjzscFHk//tQy/qKbuqmNdZKsKUj6F2gyMaLi/Q=
+github.com/xgfone/go-defaults v0.20.0/go.mod h1:QWsE+DOYKSWMYFhFnIfJO/FLBGKrXTTM4aDMP/2l5TE=
+github.com/xgfone/go-toolkit v0.1.1 h1:eYBIgrIhfYHq6unbG0Yx0CM+aX/dvolPrJ5vbDk4bWM=
+github.com/xgfone/go-toolkit v0.1.1/go.mod h1:eOWnIK/acAJOoqEOtWnvuY0Pbn6cZ0DP/Oeoyn17QHw=
