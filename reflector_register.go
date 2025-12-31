@@ -17,6 +17,7 @@ package structs
 import (
 	"github.com/xgfone/go-structs/handler/setdefault"
 	"github.com/xgfone/go-structs/handler/setter"
+	"github.com/xgfone/go-structs/handler/trim"
 	"github.com/xgfone/go-structs/handler/validate"
 )
 
@@ -25,4 +26,5 @@ func init() {
 	Register("default", setdefault.SetDefaultRunner())
 	Register("setfmt", setter.SetFormatRunner())
 	Register("set", setter.SetterRunner(nil))
+	Register("trim", trim.TrimRunner())
 }
