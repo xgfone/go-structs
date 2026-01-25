@@ -22,10 +22,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xgfone/go-defaults"
 	"github.com/xgfone/go-structs/field"
 	"github.com/xgfone/go-structs/handler"
+	"github.com/xgfone/go-structs/handler/setdefault/internal"
 	"github.com/xgfone/go-structs/handler/setter"
+	"github.com/xgfone/go-toolkit/timex"
 )
 
 var (
@@ -65,7 +66,7 @@ var (
 //
 // If the field type is string or int64, and the tag value is like "now()"
 // or "now(layout)", set the default value of the field to the current time
-// by defaults.Now(). For example,
+// by timex.Now(). For example,
 //
 //	type T struct {
 //	    StartTime string `default:"now()"`
@@ -111,9 +112,9 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 	case reflect.String:
 		if strings.HasPrefix(s, "now(") && strings.HasSuffix(s, ")") {
 			if layout := s[4 : len(s)-1]; layout == "" {
-				s = defaults.Now().Format(time.RFC3339)
+				s = internal.Now().Format(time.RFC3339)
 			} else {
-				s = defaults.Now().Format(layout)
+				s = internal.Now().Format(layout)
 			}
 		}
 		v.SetString(s)
@@ -144,7 +145,7 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 		var e error
 		var i int64
 		if strings.HasPrefix(s, "now(") && strings.HasSuffix(s, ")") {
-			i = defaults.Now().Unix()
+			i = internal.Now().Unix()
 		} else if i, e = strconv.ParseInt(s, 10, 64); e != nil {
 			return e
 		}
@@ -201,7 +202,7 @@ func parseDuration(src string) (dst time.Duration, err error) {
 }
 
 func parseTime(value string) (time.Time, error) {
-	loc := defaults.TimeLocation.Get()
+	loc := timex.Location
 
 	switch value {
 	case "", "0000-00-00 00:00:00", "0000-00-00 00:00:00.000", "0000-00-00 00:00:00.000000":
@@ -213,7 +214,7 @@ func parseTime(value string) (time.Time, error) {
 		return time.Unix(i, 0).In(loc), err
 	}
 
-	for _, layout := range defaults.TimeFormats.Get() {
+	for _, layout := range timex.Formats {
 		if t, err := time.ParseInLocation(layout, value, loc); err == nil {
 			return t, nil
 		}

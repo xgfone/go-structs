@@ -20,10 +20,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/xgfone/go-defaults/assists"
 	"github.com/xgfone/go-structs"
 	"github.com/xgfone/go-structs/handler/validate"
 )
+
+type _RuleValidatorFunc func(value any, rule string) error
+
+func (f _RuleValidatorFunc) ValidateByRule(value any, rule string) error {
+	return f(value, rule)
+}
 
 func ExampleValidateStructFieldRunner() {
 	validator := func(value interface{}, rule string) error {
@@ -51,7 +56,7 @@ func ExampleValidateStructFieldRunner() {
 
 		return nil
 	}
-	structs.Register("validate", validate.ValidateStructFieldRunner(assists.RuleValidateFunc(validator)))
+	structs.Register("validate", validate.ValidateStructFieldRunner(_RuleValidatorFunc(validator)))
 
 	type S struct {
 		F1 int64  `validate:"min(100)"` // General Type

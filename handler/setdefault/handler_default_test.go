@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/xgfone/go-defaults"
 	"github.com/xgfone/go-structs"
 	"github.com/xgfone/go-structs/handler/setdefault"
+	"github.com/xgfone/go-structs/handler/setdefault/internal"
 )
 
 type defaultSetter string
@@ -36,9 +36,9 @@ func init() {
 
 func ExampleSetDefaultRunner() {
 	// For test
-	oldNow := defaults.TimeNowFunc.Get()
-	defaults.TimeNowFunc.Set(func() time.Time { return time.Unix(1660140928, 0).UTC() })
-	defer func() { defaults.TimeNowFunc.Set(oldNow) }()
+	oldNow := internal.Now
+	internal.Now = func() time.Time { return time.Unix(1660140928, 0).UTC() }
+	defer func() { internal.Now = oldNow }()
 
 	type String string
 	type Struct struct {
