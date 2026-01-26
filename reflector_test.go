@@ -24,9 +24,9 @@ import (
 )
 
 func ExampleReflector() {
-	parseInt := func(s string) (interface{}, error) { return strconv.ParseInt(s, 10, 64) }
+	parseInt := func(s string) (any, error) { return strconv.ParseInt(s, 10, 64) }
 	compareInt := func(isMin bool) handler.Runner {
-		return func(_ interface{}, _, v reflect.Value, t reflect.StructField, a interface{}) error {
+		return func(_ any, _, v reflect.Value, t reflect.StructField, a any) error {
 			value := v.Interface().(int64)
 			if isMin {
 				if min := a.(int64); value < min {
@@ -44,7 +44,7 @@ func ExampleReflector() {
 	sf := NewReflector()
 	sf.Register("min", handler.New(parseInt, compareInt(true)))
 	sf.Register("max", handler.New(parseInt, compareInt(false)))
-	sf.Register("default", handler.SimpleRunner(func(v reflect.Value, s interface{}) error {
+	sf.Register("default", handler.SimpleRunner(func(v reflect.Value, s any) error {
 		if !v.IsZero() {
 			return nil
 		}
@@ -57,7 +57,7 @@ func ExampleReflector() {
 		v.SetInt(i)
 		return nil
 	}))
-	sf.Register("datamask", handler.SimpleRunner(func(v reflect.Value, s interface{}) error {
+	sf.Register("datamask", handler.SimpleRunner(func(v reflect.Value, s any) error {
 		switch s.(string) {
 		case "username":
 			name := v.Interface().(string)

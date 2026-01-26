@@ -31,7 +31,7 @@ func (f _RuleValidatorFunc) ValidateByRule(value any, rule string) error {
 }
 
 func ExampleValidateStructFieldRunner() {
-	validator := func(value interface{}, rule string) error {
+	validator := func(value any, rule string) error {
 		value = reflect.Indirect(reflect.ValueOf(value)).Interface()
 		switch {
 		case strings.HasPrefix(rule, "min(") && strings.HasSuffix(rule, ")"):

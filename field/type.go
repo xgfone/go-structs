@@ -45,7 +45,7 @@ func GetAllFields(stype reflect.Type) []reflect.StructField {
 
 	_len := stype.NumField()
 	fields := make([]reflect.StructField, _len)
-	for i := 0; i < _len; i++ {
+	for i := range _len {
 		fields[i] = stype.Field(i)
 	}
 
@@ -82,7 +82,7 @@ func GetAllFieldsWithTag(stype reflect.Type, tag string) map[string]Field {
 
 	_len := stype.NumField()
 	fields := make(map[string]Field, _len)
-	for i := 0; i < _len; i++ {
+	for i := range _len {
 		field := Field{StructField: stype.Field(i), Index: i}
 		field.TagValue, field.TagArg = GetTag(field.StructField, tag)
 		switch field.TagValue {

@@ -29,7 +29,7 @@ func ExampleGetTag() {
 		Bool  bool  `key:"-"`
 	}
 
-	stype := reflect.TypeOf(T{})
+	stype := reflect.TypeFor[T]()
 	for i := 0; i < stype.NumField(); i++ {
 		field := stype.Field(i)
 		value, arg := GetTag(field, "key")

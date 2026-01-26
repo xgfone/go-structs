@@ -20,7 +20,7 @@ import (
 )
 
 func ExampleGetValueByName() {
-	print := func(v interface{}, name string) {
+	print := func(v any, name string) {
 		if vf, ok := GetValueByName(v, name); ok {
 			fmt.Printf("%s: %v\n", name, vf.Interface())
 		} else {

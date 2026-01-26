@@ -22,7 +22,7 @@ import (
 // GetValueByName returns the struct field value by the name.
 //
 // fieldName maybe starts with ".".
-func GetValueByName(structValue interface{}, fieldName string) (fieldValue reflect.Value, ok bool) {
+func GetValueByName(structValue any, fieldName string) (fieldValue reflect.Value, ok bool) {
 	fieldName = strings.TrimPrefix(fieldName, ".")
 	if fieldName == "" {
 		return

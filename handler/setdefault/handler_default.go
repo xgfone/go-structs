@@ -62,7 +62,7 @@ var (
 //	time.Time      // Format: A. Integer(UTC); B. String(RFC3339)
 //	time.Duration  // Format: A. Integer(ms);  B. String(time.ParseDuration)
 //
-// And the pointer to the types above, and interface{ Set(interface{}) error }.
+// And the pointer to the types above, and interface{ Set(any) error }.
 //
 // If the field type is string or int64, and the tag value is like "now()"
 // or "now(layout)", set the default value of the field to the current time
@@ -80,7 +80,7 @@ func SetDefaultRunner() handler.Runner {
 	return setter.SetterRunner(setdefault)
 }
 
-func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructField, arg interface{}) error {
+func setdefault(_ any, root, fieldptr reflect.Value, sf reflect.StructField, arg any) error {
 	v := fieldptr.Elem()
 	if !v.IsZero() {
 		return nil
@@ -104,7 +104,7 @@ func setdefault(_ interface{}, root, fieldptr reflect.Value, sf reflect.StructFi
 		return nil
 	}
 
-	if i, ok := fieldptr.Interface().(interface{ Set(interface{}) error }); ok {
+	if i, ok := fieldptr.Interface().(interface{ Set(any) error }); ok {
 		return i.Set(s)
 	}
 
