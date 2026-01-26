@@ -21,36 +21,25 @@ import (
 
 	"github.com/xgfone/go-structs/field"
 	"github.com/xgfone/go-structs/handler"
+	"github.com/xgfone/go-validation"
 )
 
-var DefaultRuleValidator RuleValidator = _RuleValidatorFunc(noop)
+var DefaultRuleValidator RuleValidateFunc = validation.Validate
 
 // RuleValidator is used to validate whether a value conforms with the rule.
-type RuleValidator interface {
-	ValidateByRule(value any, rule string) error
-}
-
-type _RuleValidatorFunc func(value any, rule string) error
-
-func (f _RuleValidatorFunc) ValidateByRule(value any, rule string) error {
-	return f(value, rule)
-}
-
-func noop(value any, rule string) error {
-	return nil
-}
+type RuleValidateFunc func(value any, rule string) error
 
 // ValidateStructFieldRunner returns a runner to validate
 // whether a struct field value is valid, which is registered
 // into DefaultReflector with the tag name "validate" by default.
 //
 // If ruleValidator is nil, use DefaultRuleValidator instead.
-func ValidateStructFieldRunner(ruleValidator RuleValidator) handler.Runner {
+func ValidateStructFieldRunner(ruleValidator RuleValidateFunc) handler.Runner {
 	return handler.FieldRunner(func(v reflect.Value, sf reflect.StructField, a any) (err error) {
 		if ruleValidator == nil {
-			err = DefaultRuleValidator.ValidateByRule(v.Interface(), a.(string))
+			err = DefaultRuleValidator(v.Interface(), a.(string))
 		} else {
-			err = ruleValidator.ValidateByRule(v.Interface(), a.(string))
+			err = ruleValidator(v.Interface(), a.(string))
 		}
 
 		if err != nil {

@@ -1,2 +1,6 @@
 github.com/xgfone/go-toolkit v0.14.0 h1:EISZwc3PQSZ36hbx6JAmZp8BqxQGRghRp5B6c/UUvjs=
 github.com/xgfone/go-toolkit v0.14.0/go.mod h1:eOWnIK/acAJOoqEOtWnvuY0Pbn6cZ0DP/Oeoyn17QHw=
+github.com/xgfone/go-validation v0.5.0 h1:PT4u6oQ1tRVcuPK1mcc6FkKPunQdV1gOP+tm6L2kJ/k=
+github.com/xgfone/go-validation v0.5.0/go.mod h1:uKIYujPenkzcq/+shP6eCU+RA7EZpTmWok0TGGcsE/Q=
+github.com/xgfone/predicate v1.3.3 h1:eAlnN34a1Yw5u3aT427YmAj0ucpLfprx1Nnq+gKwLZ8=
+github.com/xgfone/predicate v1.3.3/go.mod h1:YWL+KK1KRUpxFkQybVQlyONTkYdNI6IpBYOmx/kF4l0=
